@@ -20,9 +20,9 @@ namespace Forecast.API
         public record Main(decimal temp);
         public record Forecast(Weather[] weather, Main main, long dt, string name);
 
-        public async Task<Forecast> GetCurrentWeatherAsync(string city)
+        public async Task<Forecast> GetCurrentWeatherAsync(string country, string city)
         {
-            var forecast = await httpClient.GetFromJsonAsync<Forecast>($"https://{settings.OpenWeatherHost}/data/2.5/weather?q={city}&appid={settings.ApiKey}&units=metric");
+            var forecast = await httpClient.GetFromJsonAsync<Forecast>($"https://{settings.OpenWeatherHost}/data/2.5/weather?q={city},{country}&appid={settings.ApiKey}&units=metric");
             return forecast;
         }
     }

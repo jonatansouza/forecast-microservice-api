@@ -20,19 +20,33 @@ namespace Forecast.API.Controllers
 
 
         [HttpGet]
-        [Route("{city}")]
-        public async Task<WeatherForecast> Get(string city)
+        [Route("{country}/{city}")]
+        public async Task<IActionResult> Get(string country, string city)
         {
-            var forecast = await _client.GetCurrentWeatherAsync(city);
-
-            return new WeatherForecast
+            var tip = new
             {
-                Summary = forecast.weather[0].description,
-                TemperatureC = (int)forecast.main.temp,
-                Date = DateTimeOffset.FromUnixTimeSeconds(forecast.dt).DateTime,
-                NameFound = forecast.name,
-                SearchTerm = city
+                Example = "country = BR, city = Rio de Janeiro"
             };
+            if (string.IsNullOrEmpty(country) || string.IsNullOrEmpty(city) || country.Length != 2)
+            {
+                return BadRequest(tip);
+            }
+            try
+            {
+                var forecast = await _client.GetCurrentWeatherAsync(country, city);
+                return Ok(new WeatherForecast
+                {
+                    Summary = forecast.weather[0].description,
+                    TemperatureC = (int)forecast.main.temp,
+                    Date = DateTimeOffset.FromUnixTimeSeconds(forecast.dt).DateTime,
+                    NameFound = forecast.name,
+                    SearchTerm = "country - " + country + ", city - " + city
+                });
+            }
+            catch (Exception e)
+            {
+                return NotFound(tip);
+            }
         }
     }
 }
